@@ -1,43 +1,36 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Example Workflow # 工作流的名称,如果省略，则使用当前文件名
 
-on:
-  # Runs on pushes targeting the default branch
+run-name: Deploy by @${{ github.actor }} # 从工作流生成的工作流运行的名称，如果省略，则使用提交时的commit信息
+
+on: # 触发工作流的事件
   push:
-    branches: ["main"]
+    branches: [ main ] # 当推送至 main 分支时触发
+  pull_request:
+    branches: [ main ] # 当创建针对 main 分支的拉取请求时触发
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+jobs: # 定义工作流中的作业
+  build: # 作业的名称
+    runs-on: ubuntu-latest # 指定运行环境
+	# 每个任务下的运行步骤，短横杠 - 表示一个步骤，从上至下依次执行。
+    steps: # 作业中的步骤
+      - name: Checkout code # 检出代码
+        uses: actions/checkout@v3 # 一般直接使用别人预先设置好的Actions 如使用actions/checkout@v3
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          python-version: '3.9' # 设置 Python 版本
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt # 安装依赖项
+
+      - name: Run tests
+        run: |
+          python test.py # 运行测试脚本
+
+      - name: Deploy
+        if: success() # 如果所有先前的步骤成功，则执行部署
+        run: |
+          echo "Deploying to production..." # 部署到生产环境
