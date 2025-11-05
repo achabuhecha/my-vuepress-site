@@ -1,2 +1,2 @@
-# my-vuepress-site
-my-vuepress-site
+# my-vuepress-site-demo
+my-vuepress-site-demo
